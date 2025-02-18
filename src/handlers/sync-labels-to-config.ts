@@ -22,7 +22,9 @@ export async function syncPriceLabelsToConfig(context: Context): Promise<void> {
       }
       const targetPrice = calculateTaskPrice(context, timeValue, priorityValue, config.basePriceMultiplier);
       const targetPriceLabel = `Price: ${targetPrice} USD`;
-      priceLabels.push({ name: targetPriceLabel });
+      if (!priceLabels.some((o) => o.name === targetPrice)) {
+        priceLabels.push({ name: targetPriceLabel });
+      }
     }
   }
 
