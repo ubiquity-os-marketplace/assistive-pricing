@@ -112,7 +112,7 @@ export async function setupTests() {
 
   db.repo.create({
     id: 1,
-    html_url: "",
+    html_url: `https://github.com/repos/${STRINGS.UBIQUITY}/${STRINGS.TEST_REPO}`,
     name: STRINGS.TEST_REPO,
     owner: {
       login: STRINGS.UBIQUITY,

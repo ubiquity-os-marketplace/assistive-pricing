@@ -6,7 +6,7 @@ import { Manifest } from "@ubiquity-os/plugin-sdk/manifest";
 import { LOG_LEVEL, LogLevel } from "@ubiquity-os/ubiquity-os-logger";
 import type { ExecutionContext } from "hono";
 import manifest from "../manifest.json";
-import { run } from "./run";
+import { isLocalEnvironment, run } from "./run";
 import { Context, SupportedEvents } from "./types/context";
 import { Env, envSchema } from "./types/env";
 import { AssistivePricingSettings, pluginSettingsSchema } from "./types/plugin-input";
@@ -80,14 +80,22 @@ export default {
           case "issues.opened":
           case "repository.created":
           case "push": {
-            const text = (await responseClone.json()) as Record<string, unknown>;
-            return startAction(context, text);
+            if (isLocalEnvironment()) {
+              return run(context);
+            } else {
+              const text = (await responseClone.json()) as Record<string, unknown>;
+              return startAction(context, text);
+            }
           }
           case "issues.labeled":
           case "issues.unlabeled": {
-            const text = (await responseClone.json()) as Record<string, unknown>;
-            await startAction(context, text);
-            return run(context);
+            if (isLocalEnvironment()) {
+              return run(context);
+            } else {
+              const text = (await responseClone.json()) as Record<string, unknown>;
+              await startAction(context, text);
+              return run(context);
+            }
           }
           default: {
             return run(context);
