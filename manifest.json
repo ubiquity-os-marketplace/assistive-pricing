@@ -2,6 +2,7 @@
   "name": "Assistive pricing",
   "description": "Handles assistive pricing, and allows for users to modify labels.",
   "ubiquity:listeners": ["repository.created", "issues.opened", "issues.labeled", "issues.unlabeled", "label.edited", "issue_comment.created", "push"],
+  "skipBotEvents": false,
   "configuration": {
     "default": {},
     "type": "object",

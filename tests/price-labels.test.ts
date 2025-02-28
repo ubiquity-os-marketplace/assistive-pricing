@@ -15,6 +15,7 @@ jest.unstable_mockModule("../src/shared/label", () => ({
 const mockLogger = {
   info: jest.fn(),
   error: jest.fn(),
+  debug: jest.fn(),
 };
 
 const mockOctokit = {

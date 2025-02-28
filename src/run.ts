@@ -4,12 +4,16 @@ import { syncPriceLabelsToConfig } from "./handlers/sync-labels-to-config";
 import { Context } from "./types/context";
 import { isIssueLabelEvent } from "./types/typeguards";
 
-function isGithubOrLocalEnvironment() {
-  return process.env.NODE_ENV === "local" || !!process.env.GITHUB_ACTIONS;
+export function isLocalEnvironment() {
+  return process.env.NODE_ENV === "local";
 }
 
-function isWorkerOrLocalEnvironment() {
-  return process.env.NODE_ENV === "local" || !process.env.GITHUB_ACTIONS;
+export function isGithubOrLocalEnvironment() {
+  return isLocalEnvironment() || !!process.env.GITHUB_ACTIONS;
+}
+
+export function isWorkerOrLocalEnvironment() {
+  return isLocalEnvironment() || !process.env.GITHUB_ACTIONS;
 }
 
 export async function run(context: Context) {
@@ -24,13 +28,8 @@ export async function run(context: Context) {
       break;
     case "issues.labeled":
     case "issues.unlabeled":
-      if (isIssueLabelEvent(context)) {
-        if (isGithubOrLocalEnvironment()) {
-          await syncPriceLabelsToConfig(context);
-        }
-        if (isWorkerOrLocalEnvironment()) {
-          await onLabelChangeSetPricing(context);
-        }
+      if (isIssueLabelEvent(context) && isWorkerOrLocalEnvironment()) {
+        await onLabelChangeSetPricing(context);
       }
       break;
     case "push":

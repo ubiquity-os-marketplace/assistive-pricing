@@ -71,7 +71,14 @@ export async function setPriceLabel(context: Context, issueLabels: Label[], conf
   const recognizedLabels = getRecognizedLabels(issueLabels, config);
 
   if (!recognizedLabels.time.length || !recognizedLabels.priority.length) {
-    logger.error("No recognized labels to calculate price");
+    const message = logger.error("No recognized labels were found to set the price of this task.", {
+      repo: context.payload.repository.html_url,
+      recognizedLabels,
+    });
+    // We only want to send that message on labeling, because un-label will trigger this during compute
+    if (context.eventName === "issues.labeled") {
+      await context.commentHandler.postComment(context, message);
+    }
     await clearAllPriceLabelsOnIssue(context);
     return;
   }
@@ -79,7 +86,9 @@ export async function setPriceLabel(context: Context, issueLabels: Label[], conf
   const minLabels = getMinLabels(recognizedLabels);
 
   if (!minLabels.time || !minLabels.priority) {
-    logger.error("No label to calculate price");
+    logger.error("No label to calculate price", {
+      repo: context.payload.repository.html_url,
+    });
     return;
   }
 
@@ -94,7 +103,9 @@ export async function setPriceLabel(context: Context, issueLabels: Label[], conf
   if (targetPriceLabel) {
     await handleTargetPriceLabel(context, { name: targetPriceLabel, description: null }, labelNames);
     await clearAllPriceLabelsOnIssue(context);
-    logger.info(`Skipping action...`);
+    logger.info(`Skipping action...`, {
+      repo: context.payload.repository.html_url,
+    });
   }
 }
 

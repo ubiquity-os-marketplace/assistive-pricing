@@ -57,11 +57,10 @@ export async function listOrgRepos(context: Context) {
 
 export async function listRepoIssues(context: Context, owner: string, repo: string) {
   try {
-    const response = await context.octokit.rest.issues.listForRepo({
+    return await context.octokit.paginate(context.octokit.rest.issues.listForRepo, {
       owner,
       repo,
     });
-    return response.data;
   } catch (err) {
     throw context.logger.error("Listing repo issues failed!", { err });
   }
